@@ -1,0 +1,103 @@
+1) Script to fetch metadata of any Azure resource and output in JSON format.
+
+# Authenticate to your Azure account
+# Connect-AzAccount
+
+# Function to get Azure resource metadata
+function Get-AzureResourceMetadata {
+    param (
+        [string]$ResourceId
+    )
+
+    try {
+        # Get the Azure resource by ID
+        $resource = Get-AzResource -ResourceId $ResourceId 
+
+        # Convert the resource properties to a JSON object
+        $metadata = @{
+            ResourceId = $resource.ResourceId
+            ResourceType = $resource.ResourceType
+            ResourceName = $resource.Name
+            ResourceLocation = $resource.Location
+            ResourceProperties = $resource.Properties
+        } | ConvertTo-Json
+
+        return $metadata
+    }
+    catch {
+        Write-Host "Error: $_"
+        return $null
+    }
+}
+
+#Calling the function
+# $resourceId = "<Resource ID>"
+# $result = Get-AzureResourceMetadata -ResourceId $resourceId
+# Write-Host $result
+
+
+2) Script to accept a nested object and a key and output the value for the same.
+
+function Get-NestedObjectValue {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.Object]$Object,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Key
+    )
+
+    
+        # If the key exists in the PSObject, return its value
+        if ($Object.ContainsKey($Key)) {
+            return $Object[$Key]
+        }
+    
+    else{
+    # If the key is not found, return $null
+    return $null
+}
+
+# Example Nested Object
+$jsonObject = ConvertFrom-Json '{
+  "person": {
+    "firstName": "Samrat",
+    "lastName": "Saha",
+    "age": 30,
+    "address": {
+      "street": "1st Right Cross Rd",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "postalCode": "560035"
+    },
+    "contact": {
+      "email": "saha17.samrat@gmail.com",
+      "phone": "8583838647"
+    }
+  }
+}'
+
+# Calling the function
+$result = Get-NestedObjectValue -Object $jsonObject -Key "person.address.city"
+
+# Print the result
+Write-Host "Value of 'person.address.city': $result"
+
+3) Infrastructure Code for a general 3-tier deployment in Azure via Terraform
+
+#Create modules for 
+VMs
+Networks + Subnets
+NSGs
+App Gateways / LBs
+KeyVault
+etc…
+
+#Create a main.tf file and call the different modules  to meet the architectural goal.
+
+FYI: I use base resource blocks from the provider documentation and then modify them based on current requirement. Didn't get the time to create the module structures and calling them from a central config to deploy the 3-tier deployment within the deadline.
+
+Note. Do not have a subscription to deploy resources.
+
+
+
